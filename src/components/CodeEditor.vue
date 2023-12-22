@@ -31,14 +31,22 @@ self.MonacoEnvironment = {
   }
 }
 
-const editor: Ref<monaco.editor.IStandaloneCodeEditor | undefined> = ref();
+// const cardHeight = document.querySelector('.card')!.getBoundingClientRect().height;
+// console.log("cardHeight" + cardHeight);
+// const card_body: HTMLElement = <HTMLElement>document.querySelector('.card-body');
+// card_body.style.height = `${cardHeight}`;
 
-const emit = defineEmits(['update:code'])
+const editor: Ref<monaco.editor.IStandaloneCodeEditor | null> = ref(null);
+
 
 const props = defineProps({
     code: {
         type: String,
         default: "function hello() {\n\talert('Hello world!');\n}",
+    },
+    language: {
+      type: String,
+      default: 'typescript'
     }
 });
 
@@ -46,34 +54,45 @@ const props = defineProps({
 onMounted(() => {
     initEditor();
 })
+// 留下props.code留着等父组件传递
+const code = ref(props.code);
+// 防止循环监听事件
+let isUpdatingCode = false;
 
 function initEditor() {
     const element: Element = document.getElementsByClassName("monaco-editor")[0];
     const htmlElement: HTMLElement = <HTMLElement>element;
     editor.value = monaco.editor.create(htmlElement, {
         value: props.code,
-        language: 'typescript',
+        language: props.language,
         theme: 'vs-dark'
     });
-    // // 监听编辑器内容变化事件
-    // editor.value.onDidChangeModelContent(() => {
-    //     emit('update:code', editor.value?.getValue())
-    // })
+
+    // 监听编辑器内容变化事件
+    editor.value.onDidChangeModelContent(() => {
+      if (!isUpdatingCode) {
+        code.value = editor.value!.getValue();
+      }
+    })
 }
 
-// watch(() => editor.value?.getValue(), (code, newCode) => {
-//     if (newCode !== undefined) {
-//         editor.value?.setValue(newCode);
-//     }
-   
-// })
+watch(() => props.code, (newCode) => {
+  if (editor && newCode !== editor.value!.getValue()) {
+    isUpdatingCode = true;
+    editor.value?.setValue(newCode || '');
+    isUpdatingCode = false;
+  }
+})
+
 
 
 </script>
 
+<!-- 这里100%的高度貌似很小，需要最小高度加以限制 -->
 <style scoped>
 .monaco-editor {
     width: 500px;
-    height: 500px;
+    height: 100%;
+    min-height: 900px;
 }
 </style>
