@@ -60,10 +60,10 @@ function updateCode(data: string) {
 // 组件初始化渲染且已经创建DOM节点
 onMounted(() => {
     let question: string = " ";
-    getTestProblemData().then((data) => {
-        question = <string>data;
-        renderMarkdown(question);
-    });
+    // getTestProblemData().then((data) => {
+    //     question = <string>data;
+    //     renderMarkdown(question);
+    // });
 })
 
 /**

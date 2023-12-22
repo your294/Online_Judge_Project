@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import * as monaco from 'monaco-editor'
-import { ref, watch, Ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, type Ref, onMounted, onBeforeUnmount } from 'vue';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
@@ -36,7 +36,7 @@ self.MonacoEnvironment = {
 // const card_body: HTMLElement = <HTMLElement>document.querySelector('.card-body');
 // card_body.style.height = `${cardHeight}`;
 
-const editor: Ref<monaco.editor.IStandaloneCodeEditor | null> = ref(null);
+let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 
 // const emit = defineEmits(['updateSave'])
 
@@ -59,15 +59,15 @@ onMounted(() => {
 
 // 在组件销毁前清理编辑器
 onBeforeUnmount(() => {
-  if (editor.value) {
-    editor.value.dispose();
+  if (editor) {
+    editor.dispose();
   }
 });
 
 function initEditor() {
     const element: Element = document.getElementsByClassName("monaco-editor")[0];
     const htmlElement: HTMLElement = <HTMLElement>element;
-    editor.value = monaco.editor.create(htmlElement, {
+    editor = monaco.editor.create(htmlElement, {
         value: props.code,
         language: props.language,
         theme: 'vs-dark'
@@ -90,10 +90,10 @@ function handleKeyDown(event: any) {
 
 function saveChanges() {
   if (editor) {
-    const currentCode = editor.value?.getValue();
+    const currentCode = editor.getValue();
     const modifiedCode = modifyCode(currentCode); // Your logic to modify the code
 
-    editor.value?.setValue(modifiedCode);
+    editor.setValue(modifiedCode);
   }
 }
 
