@@ -49,8 +49,12 @@ import { onMounted, ref } from 'vue';
 import { Marked }  from 'marked'
 
 const lang = ref("typescript");
-const Code = ref("function hello() {\n\talert('Hello world!');\n}")
+let Code = ref("function hello() {\n\talert('Hello world!');\n}")
 
+function updateCode(data: string) {
+    let newCode = ref(data);
+    Code = newCode;
+}
 
 
 // 组件初始化渲染且已经创建DOM节点
